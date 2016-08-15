@@ -2,6 +2,7 @@ package cachet
 
 import (
 	"fmt"
+	"strconv"
 )
 
 const (
@@ -32,10 +33,10 @@ type IncidentsService struct {
 // Incident entity reflects one single incident
 type Incident struct {
 	ID              int    `json:"id,omitempty"`
-	ComponentID     int    `json:"component_id,omitempty"`
+	ComponentID     string    `json:"component_id,omitempty"`
 	ComponentStatus int    `json:"component_status,omitempty"`
 	Name            string `json:"name,omitempty"`
-	Status          int    `json:"status,omitempty"`
+	Status          string    `json:"status,omitempty"`
 	Visible         int    `json:"visible,omitempty"`
 	Message         string `json:"message,omitempty"`
 	ScheduledAt     string `json:"scheduled_at,omitempty"`
@@ -63,7 +64,18 @@ type incidentsAPIResponse struct {
 //
 // Docs: https://docs.cachethq.io/docs/get-incidents
 func (s *IncidentsService) GetAll() (*IncidentResponse, *Response, error) {
-	u := "api/v1/incidents"
+	u := "api/v1/incidents?per_page=100000"
+	v := new(IncidentResponse)
+
+	resp, err := s.client.Call("GET", u, nil, v)
+	return v, resp, err
+}
+
+// GetAll return all incidents with paging parameter.
+//
+// Docs: https://docs.cachethq.io/docs/get-incidents
+func (s *IncidentsService) GetAllWithPaging(itemsPerPage int) (*IncidentResponse, *Response, error) {
+	u := "api/v1/incidents?per_page=" + strconv.Itoa(itemsPerPage)
 	v := new(IncidentResponse)
 
 	resp, err := s.client.Call("GET", u, nil, v)
